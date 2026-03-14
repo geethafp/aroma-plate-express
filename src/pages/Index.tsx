@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import MenuSection from '@/components/MenuSection';
+import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
@@ -8,10 +9,7 @@ const Index = () => {
       <Header />
       <HeroSection />
       <MenuSection />
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <p className="font-serif-display text-lg text-foreground mb-1">Annapurna Catering</p>
-        <p>Heritage flavours, delivered with care.</p>
-      </footer>
+      <Footer />
     </div>
   );
 };
