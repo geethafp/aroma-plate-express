@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Minus, Plus, Trash2, MapPin } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, Trash2, MapPin, Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
 import DeliveryScheduler from '@/components/DeliveryScheduler';
 import { useCart } from '@/lib/cart-context';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 
@@ -16,6 +23,7 @@ const Cart = () => {
   const [step, setStep] = useState<'cart' | 'schedule' | 'address' | 'confirm'>('cart');
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
   const [deliveryTime, setDeliveryTime] = useState('');
+  const [paying, setPaying] = useState(false);
   const [address, setAddress] = useState({
     name: '', phone: '', line1: '', line2: '', city: '', state: '', pincode: '',
   });
@@ -37,10 +45,91 @@ const Cart = () => {
     setStep('confirm');
   };
 
-  const handlePlaceOrder = () => {
-    toast.success('Order placed successfully!');
-    clearCart();
-    navigate('/');
+  const handlePayment = async () => {
+    if (paying) return;
+    setPaying(true);
+
+    try {
+      // 1. Create order in DB + Razorpay
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
+        body: {
+          items: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+          address,
+          deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
+          deliveryTime,
+        },
+      });
+
+      if (error || data?.error) throw new Error(data?.error || error?.message || 'Failed to create order');
+
+      const { orderId, razorpayOrderId, razorpayKeyId, amount, currency } = data;
+
+      // 2. Open Razorpay checkout
+      const options = {
+        key: razorpayKeyId,
+        amount,
+        currency,
+        name: 'Annapurna Catering',
+        description: `Order for ${items.length} item(s)`,
+        order_id: razorpayOrderId,
+        handler: async (response: any) => {
+          try {
+            // 3. Verify payment
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-payment', {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                order_id: orderId,
+              },
+            });
+
+            if (verifyError || verifyData?.error) {
+              toast.error('Payment verification failed');
+              setPaying(false);
+              return;
+            }
+
+            // 4. Success — navigate to confirmation
+            clearCart();
+            navigate('/order-success', {
+              state: {
+                orderId,
+                customerName: address.name,
+                phone: address.phone,
+                address: { line1: address.line1, line2: address.line2, city: address.city, state: address.state, pincode: address.pincode },
+                deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
+                deliveryTime,
+                items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
+                totalAmount: totalPrice,
+                paymentId: response.razorpay_payment_id,
+              },
+            });
+          } catch {
+            toast.error('Something went wrong verifying payment');
+            setPaying(false);
+          }
+        },
+        prefill: {
+          name: address.name,
+          contact: address.phone,
+        },
+        theme: { color: '#c2410c' },
+        modal: {
+          ondismiss: () => setPaying(false),
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', () => {
+        toast.error('Payment failed. Please try again.');
+        setPaying(false);
+      });
+      rzp.open();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to initiate payment');
+      setPaying(false);
+    }
   };
 
   const goBack = () => {
@@ -186,8 +275,19 @@ const Cart = () => {
                 </div>
               </div>
 
-              <button onClick={handlePlaceOrder} className="mt-4 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform">
-                Place Order
+              <button
+                onClick={handlePayment}
+                disabled={paying}
+                className="mt-4 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {paying ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  `Pay ₹${totalPrice.toLocaleString('en-IN')}`
+                )}
               </button>
             </motion.div>
           )}
