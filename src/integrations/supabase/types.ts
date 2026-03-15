@@ -14,7 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      order_items: {
+        Row: {
+          id: string
+          item_id: string
+          item_name: string
+          item_price: number
+          order_id: string
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          item_name: string
+          item_price: number
+          order_id: string
+          quantity?: number
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          item_name?: string
+          item_price?: number
+          order_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          city: string
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          delivery_date: string
+          delivery_time: string
+          id: string
+          payment_status: string
+          pincode: string
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
+          state: string
+          total_amount: number
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          city: string
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          delivery_date: string
+          delivery_time: string
+          id?: string
+          payment_status?: string
+          pincode: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          state: string
+          total_amount: number
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          city?: string
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          delivery_date?: string
+          delivery_time?: string
+          id?: string
+          payment_status?: string
+          pincode?: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          state?: string
+          total_amount?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
