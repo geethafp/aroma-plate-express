@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
@@ -42,6 +43,7 @@ const Login = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <BreadcrumbTrail />
         <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={transition} className="text-center">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -63,6 +65,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <BreadcrumbTrail />
       <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

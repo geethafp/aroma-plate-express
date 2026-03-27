@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { toast } from 'sonner';
@@ -16,6 +17,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <BreadcrumbTrail />
       <div className="container mx-auto max-w-4xl px-4 py-16">
         <h1 className="font-serif-display text-4xl tracking-tight text-foreground mb-10">Contact Us</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">

@@ -1,21 +1,18 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Minus, Plus, Trash2, MapPin, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, Loader2, MapPin, Minus, Plus, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
 import DeliveryScheduler from '@/components/DeliveryScheduler';
-import { useCart } from '@/lib/cart-context';
-import { toast } from 'sonner';
-import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import { useCart } from '@/lib/cart-context';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
+
+const formatCurrency = (amount: number) => `Rs. ${amount.toLocaleString('en-IN')}`;
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -25,7 +22,13 @@ const Cart = () => {
   const [deliveryTime, setDeliveryTime] = useState('');
   const [paying, setPaying] = useState(false);
   const [address, setAddress] = useState({
-    name: '', phone: '', line1: '', line2: '', city: '', state: '', pincode: '',
+    name: '',
+    phone: '',
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    pincode: '',
   });
 
   const handleScheduleContinue = () => {
@@ -33,38 +36,51 @@ const Cart = () => {
       toast.error('Please select both date and time');
       return;
     }
+
     setStep('address');
   };
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!address.name || !address.phone || !address.line1 || !address.city || !address.state || !address.pincode) {
       toast.error('Please fill all required fields');
       return;
     }
+
     setStep('confirm');
   };
 
   const handlePayment = async () => {
     if (paying) return;
+
     setPaying(true);
 
     try {
-      // 1. Create order in DB + Razorpay
       const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
-          items: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+          items: items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
           address,
           deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
           deliveryTime,
         },
       });
 
-      if (error || data?.error) throw new Error(data?.error || error?.message || 'Failed to create order');
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || 'Failed to create order');
+      }
+
+      if (typeof window === 'undefined' || !window.Razorpay) {
+        throw new Error('Razorpay checkout failed to load. Refresh the page and try again.');
+      }
 
       const { orderId, razorpayOrderId, razorpayKeyId, amount, currency } = data;
 
-      // 2. Open Razorpay checkout
       const options = {
         key: razorpayKeyId,
         amount,
@@ -72,9 +88,8 @@ const Cart = () => {
         name: 'Annapurna Catering',
         description: `Order for ${items.length} item(s)`,
         order_id: razorpayOrderId,
-        handler: async (response: any) => {
+        handler: async (response: RazorpayResponse) => {
           try {
-            // 3. Verify payment
             const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-payment', {
               body: {
                 razorpay_order_id: response.razorpay_order_id,
@@ -90,17 +105,26 @@ const Cart = () => {
               return;
             }
 
-            // 4. Success — navigate to confirmation
             clearCart();
             navigate('/order-success', {
               state: {
                 orderId,
                 customerName: address.name,
                 phone: address.phone,
-                address: { line1: address.line1, line2: address.line2, city: address.city, state: address.state, pincode: address.pincode },
+                address: {
+                  line1: address.line1,
+                  line2: address.line2,
+                  city: address.city,
+                  state: address.state,
+                  pincode: address.pincode,
+                },
                 deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
                 deliveryTime,
-                items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
+                items: items.map((item) => ({
+                  name: item.name,
+                  quantity: item.quantity,
+                  price: item.price,
+                })),
                 totalAmount: totalPrice,
                 paymentId: response.razorpay_payment_id,
               },
@@ -127,7 +151,7 @@ const Cart = () => {
       });
       rzp.open();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to initiate payment');
+      toast.error(err?.message || 'Failed to initiate payment');
       setPaying(false);
     }
   };
@@ -139,7 +163,14 @@ const Cart = () => {
     else setStep('address');
   };
 
-  const backLabel = step === 'cart' ? 'Back to menu' : step === 'schedule' ? 'Back to cart' : step === 'address' ? 'Back to schedule' : 'Back to address';
+  const backLabel =
+    step === 'cart'
+      ? 'Back to menu'
+      : step === 'schedule'
+        ? 'Back to cart'
+        : step === 'address'
+          ? 'Back to schedule'
+          : 'Back to address';
 
   const stepIndex = ['cart', 'schedule', 'address', 'confirm'].indexOf(step);
 
@@ -147,10 +178,13 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <BreadcrumbTrail />
         <div className="container mx-auto flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
-          <p className="font-serif-display text-2xl text-foreground mb-2">Your feast is currently empty.</p>
-          <p className="text-muted-foreground mb-6">Browse our menu and add dishes to get started.</p>
-          <Link to="/" className="rounded-xl bg-primary px-8 py-3 text-sm font-medium text-primary-foreground">Browse Menu</Link>
+          <p className="mb-2 font-serif-display text-2xl text-foreground">Your feast is currently empty.</p>
+          <p className="mb-6 text-muted-foreground">Browse our menu and add dishes to get started.</p>
+          <Link to="/" className="rounded-xl bg-primary px-8 py-3 text-sm font-medium text-primary-foreground">
+            Browse Menu
+          </Link>
         </div>
       </div>
     );
@@ -159,16 +193,17 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <BreadcrumbTrail />
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <button onClick={goBack} className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={goBack} className="mb-6 flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft size={16} /> {backLabel}
         </button>
 
-        <div className="flex items-center gap-2 mb-8">
-          {['Cart', 'Schedule', 'Address', 'Confirm'].map((label, i) => (
-            <div key={label} className="flex items-center gap-2 flex-1">
-              <div className={`h-1 flex-1 rounded-full transition-colors ${i <= stepIndex ? 'bg-primary' : 'bg-border'}`} />
-              <span className={`text-xs font-medium ${i <= stepIndex ? 'text-primary' : 'text-muted-foreground'}`}>{label}</span>
+        <div className="mb-8 flex items-center gap-2">
+          {['Cart', 'Schedule', 'Address', 'Confirm'].map((label, index) => (
+            <div key={label} className="flex flex-1 items-center gap-2">
+              <div className={`h-1 flex-1 rounded-full transition-colors ${index <= stepIndex ? 'bg-primary' : 'bg-border'}`} />
+              <span className={`text-xs font-medium ${index <= stepIndex ? 'text-primary' : 'text-muted-foreground'}`}>{label}</span>
             </div>
           ))}
         </div>
@@ -176,32 +211,38 @@ const Cart = () => {
         <AnimatePresence mode="wait">
           {step === 'cart' && (
             <motion.div key="cart" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={transition}>
-              <h2 className="font-serif-display text-3xl tracking-tight text-foreground mb-6">Your Order</h2>
+              <h2 className="mb-6 font-serif-display text-3xl tracking-tight text-foreground">Your Order</h2>
               <div className="space-y-4">
-                {items.map(item => (
-                  <div key={item.id} className="flex gap-4 rounded-2xl bg-card card-shadow p-3">
-                    <img src={item.image} alt={item.name} className="h-20 w-20 rounded-xl object-cover image-outline" />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground truncate">{item.name}</h3>
-                      <p className="font-mono-price text-sm font-bold text-primary mt-0.5">₹{item.price.toLocaleString('en-IN')}</p>
-                      <div className="flex items-center gap-3 mt-2">
+                {items.map((item) => (
+                  <div key={item.id} className="flex gap-4 rounded-2xl bg-card p-3 card-shadow">
+                    <img src={item.image} alt={item.name} className="image-outline h-20 w-20 rounded-xl object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-medium text-foreground">{item.name}</h3>
+                      <p className="mt-0.5 font-mono-price text-sm font-bold text-primary">{formatCurrency(item.price)}</p>
+                      <div className="mt-2 flex items-center gap-3">
                         <div className="flex items-center gap-2 rounded-lg bg-secondary px-2 py-1">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-muted-foreground hover:text-foreground"><Minus size={14} /></button>
-                          <span className="font-mono-price text-sm font-bold w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-muted-foreground hover:text-foreground"><Plus size={14} /></button>
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-muted-foreground hover:text-foreground">
+                            <Minus size={14} />
+                          </button>
+                          <span className="w-4 text-center font-mono-price text-sm font-bold">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-muted-foreground hover:text-foreground">
+                            <Plus size={14} />
+                          </button>
                         </div>
-                        <button onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={14} /></button>
+                        <button onClick={() => removeItem(item.id)} className="text-muted-foreground transition-colors hover:text-destructive">
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </div>
-                    <div className="font-mono-price text-sm font-bold text-foreground self-center">₹{(item.price * item.quantity).toLocaleString('en-IN')}</div>
+                    <div className="self-center font-mono-price text-sm font-bold text-foreground">{formatCurrency(item.price * item.quantity)}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                 <span className="text-lg font-medium text-foreground">Total</span>
-                <span className="font-mono-price text-xl font-bold text-primary">₹{totalPrice.toLocaleString('en-IN')}</span>
+                <span className="font-mono-price text-xl font-bold text-primary">{formatCurrency(totalPrice)}</span>
               </div>
-              <button onClick={() => setStep('schedule')} className="mt-6 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform">
+              <button onClick={() => setStep('schedule')} className="mt-6 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]">
                 Schedule Delivery
               </button>
             </motion.div>
@@ -209,10 +250,10 @@ const Cart = () => {
 
           {step === 'schedule' && (
             <motion.div key="schedule" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={transition}>
-              <h2 className="font-serif-display text-3xl tracking-tight text-foreground mb-6">Schedule Delivery</h2>
-              <p className="text-sm text-muted-foreground mb-6">Choose a delivery slot at least 24 hours from now.</p>
+              <h2 className="mb-6 font-serif-display text-3xl tracking-tight text-foreground">Schedule Delivery</h2>
+              <p className="mb-6 text-sm text-muted-foreground">Choose a delivery slot at least 24 hours from now.</p>
               <DeliveryScheduler date={deliveryDate} time={deliveryTime} onDateChange={setDeliveryDate} onTimeChange={setDeliveryTime} />
-              <button onClick={handleScheduleContinue} className="mt-8 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform">
+              <button onClick={handleScheduleContinue} className="mt-8 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]">
                 Continue to Address
               </button>
             </motion.div>
@@ -220,65 +261,72 @@ const Cart = () => {
 
           {step === 'address' && (
             <motion.div key="address" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={transition}>
-              <div className="flex items-center gap-2 mb-6">
+              <div className="mb-6 flex items-center gap-2">
                 <MapPin size={20} className="text-primary" />
                 <h2 className="font-serif-display text-3xl tracking-tight text-foreground">Delivery Address</h2>
               </div>
               <form onSubmit={handleAddressSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input type="text" placeholder="Full Name *" value={address.name} onChange={e => setAddress(a => ({ ...a, name: e.target.value }))} className="h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
-                  <input type="tel" placeholder="Phone Number *" maxLength={10} value={address.phone} onChange={e => setAddress(a => ({ ...a, phone: e.target.value.replace(/\D/g, '') }))} className="h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <input type="text" placeholder="Full Name *" value={address.name} onChange={(e) => setAddress((current) => ({ ...current, name: e.target.value }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
+                  <input type="tel" placeholder="Phone Number *" maxLength={10} value={address.phone} onChange={(e) => setAddress((current) => ({ ...current, phone: e.target.value.replace(/\D/g, '') }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
                 </div>
-                <input type="text" placeholder="Address Line 1 *" value={address.line1} onChange={e => setAddress(a => ({ ...a, line1: e.target.value }))} className="w-full h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
-                <input type="text" placeholder="Address Line 2 (Landmark)" value={address.line2} onChange={e => setAddress(a => ({ ...a, line2: e.target.value }))} className="w-full h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <input type="text" placeholder="City *" value={address.city} onChange={e => setAddress(a => ({ ...a, city: e.target.value }))} className="h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
-                  <input type="text" placeholder="State *" value={address.state} onChange={e => setAddress(a => ({ ...a, state: e.target.value }))} className="h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
-                  <input type="text" placeholder="PIN Code *" maxLength={6} value={address.pincode} onChange={e => setAddress(a => ({ ...a, pincode: e.target.value.replace(/\D/g, '') }))} className="h-12 rounded-xl bg-card card-shadow px-4 text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary transition-all" />
+                <input type="text" placeholder="Address Line 1 *" value={address.line1} onChange={(e) => setAddress((current) => ({ ...current, line1: e.target.value }))} className="h-12 w-full rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
+                <input type="text" placeholder="Address Line 2 (Landmark)" value={address.line2} onChange={(e) => setAddress((current) => ({ ...current, line2: e.target.value }))} className="h-12 w-full rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <input type="text" placeholder="City *" value={address.city} onChange={(e) => setAddress((current) => ({ ...current, city: e.target.value }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
+                  <input type="text" placeholder="State *" value={address.state} onChange={(e) => setAddress((current) => ({ ...current, state: e.target.value }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
+                  <input type="text" placeholder="PIN Code *" maxLength={6} value={address.pincode} onChange={(e) => setAddress((current) => ({ ...current, pincode: e.target.value.replace(/\D/g, '') }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
                 </div>
-                <button type="submit" className="mt-4 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform">Review Order</button>
+                <button type="submit" className="mt-4 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]">
+                  Review Order
+                </button>
               </form>
             </motion.div>
           )}
 
           {step === 'confirm' && (
             <motion.div key="confirm" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={transition}>
-              <h2 className="font-serif-display text-3xl tracking-tight text-foreground mb-6">Order Summary</h2>
+              <h2 className="mb-6 font-serif-display text-3xl tracking-tight text-foreground">Order Summary</h2>
 
               {deliveryDate && deliveryTime && (
-                <div className="rounded-2xl bg-card card-shadow p-5 mb-4">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">DELIVERY SCHEDULE</h3>
-                  <p className="text-foreground font-medium">{format(deliveryDate, 'EEEE, dd MMMM yyyy')}</p>
+                <div className="mb-4 rounded-2xl bg-card p-5 card-shadow">
+                  <h3 className="mb-3 text-sm font-medium text-muted-foreground">DELIVERY SCHEDULE</h3>
+                  <p className="font-medium text-foreground">{format(deliveryDate, 'EEEE, dd MMMM yyyy')}</p>
                   <p className="text-sm text-muted-foreground">Time: {deliveryTime}</p>
                 </div>
               )}
 
-              <div className="rounded-2xl bg-card card-shadow p-5 mb-4">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">DELIVERY TO</h3>
-                <p className="text-foreground font-medium">{address.name}</p>
-                <p className="text-sm text-muted-foreground">{address.line1}{address.line2 ? `, ${address.line2}` : ''}</p>
-                <p className="text-sm text-muted-foreground">{address.city}, {address.state} - {address.pincode}</p>
+              <div className="mb-4 rounded-2xl bg-card p-5 card-shadow">
+                <h3 className="mb-3 text-sm font-medium text-muted-foreground">DELIVERY TO</h3>
+                <p className="font-medium text-foreground">{address.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {address.line1}
+                  {address.line2 ? `, ${address.line2}` : ''}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {address.city}, {address.state} - {address.pincode}
+                </p>
                 <p className="text-sm text-muted-foreground">Phone: +91 {address.phone}</p>
               </div>
 
-              <div className="rounded-2xl bg-card card-shadow p-5 mb-4">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">ITEMS ({items.length})</h3>
-                {items.map(item => (
+              <div className="mb-4 rounded-2xl bg-card p-5 card-shadow">
+                <h3 className="mb-3 text-sm font-medium text-muted-foreground">ITEMS ({items.length})</h3>
+                {items.map((item) => (
                   <div key={item.id} className="flex justify-between py-2">
-                    <span className="text-foreground">{item.name} × {item.quantity}</span>
-                    <span className="font-mono-price font-bold text-foreground">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                    <span className="text-foreground">{item.name} x {item.quantity}</span>
+                    <span className="font-mono-price font-bold text-foreground">{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 ))}
-                <div className="flex justify-between border-t border-border pt-3 mt-3">
+                <div className="mt-3 flex justify-between border-t border-border pt-3">
                   <span className="text-lg font-medium text-foreground">Total</span>
-                  <span className="font-mono-price text-xl font-bold text-primary">₹{totalPrice.toLocaleString('en-IN')}</span>
+                  <span className="font-mono-price text-xl font-bold text-primary">{formatCurrency(totalPrice)}</span>
                 </div>
               </div>
 
               <button
                 onClick={handlePayment}
                 disabled={paying}
-                className="mt-4 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-70"
               >
                 {paying ? (
                   <>
@@ -286,7 +334,7 @@ const Cart = () => {
                     Processing...
                   </>
                 ) : (
-                  `Pay ₹${totalPrice.toLocaleString('en-IN')}`
+                  `Pay ${formatCurrency(totalPrice)}`
                 )}
               </button>
             </motion.div>

@@ -1,10 +1,12 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <BreadcrumbTrail />
       <div className="container mx-auto max-w-3xl px-4 py-16">
         <h1 className="font-serif-display text-4xl tracking-tight text-foreground mb-6">About Annapurna</h1>
         <div className="space-y-6 text-muted-foreground leading-relaxed">
