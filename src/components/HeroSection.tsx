@@ -4,6 +4,10 @@ import heroBanner from '@/assets/hero-banner.jpg';
 const transition = { duration: 0.6, ease: [0.2, 0, 0, 1] as const };
 
 const HeroSection = () => {
+  const scrollToMenu = () => {
+    document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
@@ -27,15 +31,16 @@ const HeroSection = () => {
         >
           South Indian mains & North Indian desserts, crafted for your celebrations.
         </motion.p>
-        <motion.a
-          href="#menu"
+        <motion.button
+          type="button"
+          onClick={scrollToMenu}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...transition, delay: 0.4 }}
           className="mt-8 rounded-xl bg-primary px-8 py-3.5 text-base font-medium text-primary-foreground shadow-lg hover:shadow-xl active:scale-95 transition-all"
         >
           Build Your Menu
-        </motion.a>
+        </motion.button>
       </div>
     </section>
   );
