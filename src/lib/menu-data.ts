@@ -1,14 +1,25 @@
 import type { MenuItem } from './cart-context';
-import masalaDosa from '@/assets/masala-dosa.jpg';
-import idliChutney from '@/assets/idli-chutney.jpg';
 import biryani from '@/assets/biryani.jpg';
-import shahiPaneer from '@/assets/shahi-paneer.jpg';
-import meduVada from '@/assets/medu-vada.jpg';
 import gajarHalwa from '@/assets/gajar-halwa.jpg';
 import gulabJamun from '@/assets/gulab-jamun.jpg';
+import idliChutney from '@/assets/idli-chutney.jpg';
+import masalaDosa from '@/assets/masala-dosa.jpg';
+import meduVada from '@/assets/medu-vada.jpg';
 import rasmalai from '@/assets/rasmalai.jpg';
+import shahiPaneer from '@/assets/shahi-paneer.jpg';
 
-export const menuItems: MenuItem[] = [
+export const menuImageMap = {
+  'biryani.jpg': biryani,
+  'gajar-halwa.jpg': gajarHalwa,
+  'gulab-jamun.jpg': gulabJamun,
+  'idli-chutney.jpg': idliChutney,
+  'masala-dosa.jpg': masalaDosa,
+  'medu-vada.jpg': meduVada,
+  'rasmalai.jpg': rasmalai,
+  'shahi-paneer.jpg': shahiPaneer,
+} as const;
+
+export const fallbackMenuItems: MenuItem[] = [
   {
     id: 'masala-dosa',
     name: 'Masala Dosa',
@@ -16,7 +27,7 @@ export const menuItems: MenuItem[] = [
     price: 1200,
     image: masalaDosa,
     category: 'south-indian',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '3 hours',
   },
   {
@@ -26,7 +37,7 @@ export const menuItems: MenuItem[] = [
     price: 800,
     image: idliChutney,
     category: 'south-indian',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '2 hours',
   },
   {
@@ -36,7 +47,7 @@ export const menuItems: MenuItem[] = [
     price: 900,
     image: meduVada,
     category: 'south-indian',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '2 hours',
   },
   {
@@ -46,7 +57,7 @@ export const menuItems: MenuItem[] = [
     price: 2500,
     image: biryani,
     category: 'mains',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '4 hours',
   },
   {
@@ -56,7 +67,7 @@ export const menuItems: MenuItem[] = [
     price: 1800,
     image: shahiPaneer,
     category: 'mains',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '3 hours',
   },
   {
@@ -66,7 +77,7 @@ export const menuItems: MenuItem[] = [
     price: 1500,
     image: gajarHalwa,
     category: 'north-indian-desserts',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '4 hours',
   },
   {
@@ -76,7 +87,7 @@ export const menuItems: MenuItem[] = [
     price: 1200,
     image: gulabJamun,
     category: 'north-indian-desserts',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '3 hours',
   },
   {
@@ -86,7 +97,7 @@ export const menuItems: MenuItem[] = [
     price: 1400,
     image: rasmalai,
     category: 'north-indian-desserts',
-    serves: 'Serves 10–12',
+    serves: 'Serves 10-12',
     prepTime: '3 hours',
   },
 ];
