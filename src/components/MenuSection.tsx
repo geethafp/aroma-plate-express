@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import DishCard from './DishCard';
-import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
 import type { MenuItem } from '@/lib/cart-context';
-import { fallbackMenuItems, menuImageMap } from '@/lib/menu-data';
+import { fallbackMenuItems } from '@/lib/menu-data';
 
 const categories = [
   { key: 'all', label: 'All Dishes' },
@@ -13,73 +11,9 @@ const categories = [
   { key: 'north-indian-desserts', label: 'Desserts' },
 ] as const;
 
-type MenuCategory = MenuItem['category'];
-type MenuRow = Tables<'menu_items'>;
-
-const isMenuCategory = (value: string): value is MenuCategory =>
-  value === 'south-indian' || value === 'mains' || value === 'north-indian-desserts';
-
-const mapRowToMenuItem = (row: MenuRow): MenuItem | null => {
-  if (!isMenuCategory(row.category)) {
-    return null;
-  }
-
-  const image = row.image_url || (row.image_path ? menuImageMap[row.image_path as keyof typeof menuImageMap] : undefined);
-
-  if (!image) {
-    return null;
-  }
-
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    price: row.price,
-    image,
-    category: row.category,
-    serves: row.serves,
-    prepTime: row.prep_time,
-  };
-};
-
 const MenuSection = () => {
   const [active, setActive] = useState<string>('all');
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(fallbackMenuItems);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadMenuItems = async () => {
-      const { data, error } = await supabase
-        .from('menu_items')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true })
-        .order('name', { ascending: true });
-
-      if (!mounted) return;
-
-      if (error || !data) {
-        setLoading(false);
-        return;
-      }
-
-      const mappedItems = data.map(mapRowToMenuItem).filter((item): item is MenuItem => item !== null);
-
-      if (mappedItems.length > 0) {
-        setMenuItems(mappedItems);
-      }
-
-      setLoading(false);
-    };
-
-    loadMenuItems();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const menuItems: MenuItem[] = fallbackMenuItems;
 
   const filtered = active === 'all' ? menuItems : menuItems.filter((item) => item.category === active);
 
@@ -92,7 +26,7 @@ const MenuSection = () => {
         Every dish prepared fresh, designed to serve 10-12 guests.
       </p>
 
-      {loading && <p className="mb-6 text-center text-sm text-muted-foreground">Loading menu...</p>}
+      
 
       <div className="mb-10 flex flex-wrap justify-center gap-2">
         {categories.map((category) => (
