@@ -14,6 +14,25 @@ const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 
 const formatCurrency = (amount: number) => `Rs. ${amount.toLocaleString('en-IN')}`;
 
+const extractFunctionError = (error: unknown, fallback: string) => {
+  if (error instanceof Error) {
+    const context = (error as Error & { context?: unknown }).context;
+
+    if (typeof context === 'string') {
+      try {
+        const parsed = JSON.parse(context) as { error?: string };
+        if (parsed?.error) return parsed.error;
+      } catch {
+        if (context.trim()) return context;
+      }
+    }
+
+    if (error.message) return error.message;
+  }
+
+  return fallback;
+};
+
 const Cart = () => {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCart();
@@ -72,7 +91,7 @@ const Cart = () => {
       });
 
       if (error || data?.error) {
-        throw new Error(data?.error || error?.message || 'Failed to create order');
+        throw new Error(data?.error || extractFunctionError(error, 'Failed to create order'));
       }
 
       if (typeof window === 'undefined' || !window.Razorpay) {
@@ -100,7 +119,7 @@ const Cart = () => {
             });
 
             if (verifyError || verifyData?.error) {
-              toast.error('Payment verification failed');
+              toast.error(verifyData?.error || extractFunctionError(verifyError, 'Payment verification failed'));
               setPaying(false);
               return;
             }
@@ -150,8 +169,8 @@ const Cart = () => {
         setPaying(false);
       });
       rzp.open();
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to initiate payment');
+    } catch (err: unknown) {
+      toast.error(extractFunctionError(err, 'Failed to initiate payment'));
       setPaying(false);
     }
   };
