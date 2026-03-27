@@ -26,7 +26,7 @@ const MenuSection = () => {
         Every dish prepared fresh, designed to serve 10-12 guests.
       </p>
 
-      {loading && <p className="mb-6 text-center text-sm text-muted-foreground">Loading menu...</p>}
+      
 
       <div className="mb-10 flex flex-wrap justify-center gap-2">
         {categories.map((category) => (
