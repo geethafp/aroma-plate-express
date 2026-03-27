@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
+import { lovable } from '@/integrations/lovable/index';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 

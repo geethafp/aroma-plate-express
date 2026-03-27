@@ -144,7 +144,7 @@ const Cart = () => {
         name: 'Annapurna Catering',
         description: `Order for ${items.length} item(s)`,
         order_id: razorpayOrderId,
-        handler: async (response: RazorpayResponse) => {
+        handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           try {
             const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-payment', {
               body: {
