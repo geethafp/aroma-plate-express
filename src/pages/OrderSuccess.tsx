@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, CheckCircle2, MapPin, Package } from 'lucide-react';
+import { Calendar, CheckCircle2, CreditCard, MapPin, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Footer from '@/components/Footer';
@@ -16,7 +16,8 @@ interface OrderData {
   deliveryTime: string;
   items: { name: string; quantity: number; price: number }[];
   totalAmount: number;
-  paymentId: string;
+  paymentId?: string | null;
+  paymentMethod: 'online' | 'cod';
 }
 
 const formatCurrency = (amount: number) => `Rs. ${amount.toLocaleString('en-IN')}`;
@@ -32,6 +33,8 @@ const OrderSuccess = () => {
 
   if (!orderData) return null;
 
+  const isCod = orderData.paymentMethod === 'cod';
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -45,8 +48,14 @@ const OrderSuccess = () => {
         >
           <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-primary" />
           <h1 className="mb-2 font-serif-display text-3xl tracking-tight text-foreground">Order Confirmed!</h1>
-          <p className="text-muted-foreground">Payment received successfully. Your feast is being prepared.</p>
-          <p className="mt-2 font-mono-price text-xs text-muted-foreground/60">Payment ID: {orderData.paymentId}</p>
+          <p className="text-muted-foreground">
+            {isCod
+              ? 'Your order is booked. Please keep the amount ready for cash on delivery.'
+              : 'Payment received successfully. Your feast is being prepared.'}
+          </p>
+          {orderData.paymentId && (
+            <p className="mt-2 font-mono-price text-xs text-muted-foreground/60">Payment ID: {orderData.paymentId}</p>
+          )}
         </motion.div>
 
         <motion.div
@@ -55,6 +64,17 @@ const OrderSuccess = () => {
           transition={{ delay: 0.2, duration: 0.4 }}
           className="space-y-4"
         >
+          <div className="rounded-2xl bg-card p-5 card-shadow">
+            <div className="mb-3 flex items-center gap-2">
+              <CreditCard size={16} className="text-primary" />
+              <h3 className="text-sm font-medium text-muted-foreground">PAYMENT MODE</h3>
+            </div>
+            <p className="font-medium text-foreground">{isCod ? 'Cash on Delivery' : 'Online Payment'}</p>
+            <p className="text-sm text-muted-foreground">
+              {isCod ? 'Payment will be collected at delivery.' : 'Your online payment has been recorded.'}
+            </p>
+          </div>
+
           <div className="rounded-2xl bg-card p-5 card-shadow">
             <div className="mb-3 flex items-center gap-2">
               <Calendar size={16} className="text-primary" />
@@ -94,7 +114,7 @@ const OrderSuccess = () => {
               </div>
             ))}
             <div className="mt-3 flex justify-between border-t border-border pt-3">
-              <span className="text-lg font-medium text-foreground">Total Paid</span>
+              <span className="text-lg font-medium text-foreground">{isCod ? 'Total Due' : 'Total Paid'}</span>
               <span className="font-mono-price text-xl font-bold text-primary">{formatCurrency(orderData.totalAmount)}</span>
             </div>
           </div>

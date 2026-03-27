@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Loader2, MapPin, Minus, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Banknote, CreditCard, Loader2, MapPin, Minus, Plus, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import BreadcrumbTrail from '@/components/BreadcrumbTrail';
@@ -33,6 +33,8 @@ const extractFunctionError = (error: unknown, fallback: string) => {
   return fallback;
 };
 
+type PaymentMethod = 'online' | 'cod';
+
 const Cart = () => {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCart();
@@ -40,6 +42,7 @@ const Cart = () => {
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
   const [deliveryTime, setDeliveryTime] = useState('');
   const [paying, setPaying] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online');
   const [address, setAddress] = useState({
     name: '',
     phone: '',
@@ -70,6 +73,29 @@ const Cart = () => {
     setStep('confirm');
   };
 
+  const buildOrderSuccessState = (paymentId?: string | null) => ({
+    orderId: '',
+    customerName: address.name,
+    phone: address.phone,
+    address: {
+      line1: address.line1,
+      line2: address.line2,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+    },
+    deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
+    deliveryTime,
+    items: items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+    })),
+    totalAmount: totalPrice,
+    paymentId,
+    paymentMethod,
+  });
+
   const handlePayment = async () => {
     if (paying) return;
 
@@ -87,11 +113,24 @@ const Cart = () => {
           address,
           deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
           deliveryTime,
+          paymentMethod,
         },
       });
 
       if (error || data?.error) {
         throw new Error(data?.error || extractFunctionError(error, 'Failed to create order'));
+      }
+
+      if (paymentMethod === 'cod') {
+        clearCart();
+        navigate('/order-success', {
+          state: {
+            ...buildOrderSuccessState(null),
+            orderId: data.orderId,
+            paymentMethod: 'cod',
+          },
+        });
+        return;
       }
 
       if (typeof window === 'undefined' || !window.Razorpay) {
@@ -127,29 +166,13 @@ const Cart = () => {
             clearCart();
             navigate('/order-success', {
               state: {
+                ...buildOrderSuccessState(response.razorpay_payment_id),
                 orderId,
-                customerName: address.name,
-                phone: address.phone,
-                address: {
-                  line1: address.line1,
-                  line2: address.line2,
-                  city: address.city,
-                  state: address.state,
-                  pincode: address.pincode,
-                },
-                deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
-                deliveryTime,
-                items: items.map((item) => ({
-                  name: item.name,
-                  quantity: item.quantity,
-                  price: item.price,
-                })),
-                totalAmount: totalPrice,
-                paymentId: response.razorpay_payment_id,
+                paymentMethod: 'online',
               },
             });
-          } catch {
-            toast.error('Something went wrong verifying payment');
+          } catch (err: unknown) {
+            toast.error(extractFunctionError(err, 'Something went wrong verifying payment'));
             setPaying(false);
           }
         },
@@ -342,6 +365,34 @@ const Cart = () => {
                 </div>
               </div>
 
+              <div className="mb-6 rounded-2xl bg-card p-5 card-shadow">
+                <h3 className="mb-4 text-sm font-medium text-muted-foreground">CHOOSE PAYMENT MODE</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('online')}
+                    className={`rounded-2xl border p-4 text-left transition-colors ${paymentMethod === 'online' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <CreditCard size={18} className="text-primary" />
+                      <span className="font-medium text-foreground">Pay Online</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Complete payment now using Razorpay.</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cod')}
+                    className={`rounded-2xl border p-4 text-left transition-colors ${paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <Banknote size={18} className="text-primary" />
+                      <span className="font-medium text-foreground">Cash on Delivery</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Pay when your order is delivered.</p>
+                  </button>
+                </div>
+              </div>
+
               <button
                 onClick={handlePayment}
                 disabled={paying}
@@ -352,8 +403,10 @@ const Cart = () => {
                     <Loader2 size={16} className="animate-spin" />
                     Processing...
                   </>
+                ) : paymentMethod === 'online' ? (
+                  `Pay ${formatCurrency(totalPrice)} Online`
                 ) : (
-                  `Pay ${formatCurrency(totalPrice)}`
+                  `Confirm Cash on Delivery - ${formatCurrency(totalPrice)}`
                 )}
               </button>
             </motion.div>

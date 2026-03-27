@@ -22,28 +22,31 @@ type CheckoutAddress = {
   pincode: string
 }
 
+type PaymentMethod = 'online' | 'cod'
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID')
-    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET')
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-      throw new Error('Razorpay credentials not configured')
-    }
-
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const { items, address, deliveryDate, deliveryTime } = await req.json() as {
+    const {
+      items,
+      address,
+      deliveryDate,
+      deliveryTime,
+      paymentMethod,
+    } = await req.json() as {
       items: CheckoutItem[]
       address: CheckoutAddress
       deliveryDate: string
       deliveryTime: string
+      paymentMethod?: PaymentMethod
     }
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -58,6 +61,8 @@ Deno.serve(async (req) => {
       throw new Error('Delivery date and time are required')
     }
 
+    const selectedPaymentMethod: PaymentMethod = paymentMethod === 'cod' ? 'cod' : 'online'
+
     const invalidItem = items.find((item) =>
       !item?.id ||
       !item?.name ||
@@ -71,14 +76,14 @@ Deno.serve(async (req) => {
       throw new Error('Invalid cart item payload')
     }
 
-    // Calculate total in paise
     const totalAmount = items.reduce((sum: number, item) => sum + item.price * item.quantity * 100, 0)
 
     if (!Number.isInteger(totalAmount) || totalAmount <= 0) {
       throw new Error('Invalid order total')
     }
 
-    // Insert order into DB
+    const initialPaymentStatus = selectedPaymentMethod === 'cod' ? 'cod_pending' : 'pending'
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -92,26 +97,42 @@ Deno.serve(async (req) => {
         delivery_date: deliveryDate,
         delivery_time: deliveryTime,
         total_amount: totalAmount,
-        payment_status: 'pending',
+        payment_method: selectedPaymentMethod,
+        payment_status: initialPaymentStatus,
       })
       .select()
       .single()
 
     if (orderError) throw new Error(`DB insert failed: ${orderError.message}`)
 
-    // Insert order items
     const orderItems = items.map((item) => ({
       order_id: order.id,
       item_id: item.id,
       item_name: item.name,
-      item_price: item.price * 100, // paise
+      item_price: item.price * 100,
       quantity: item.quantity,
     }))
 
     const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
     if (itemsError) throw new Error(`Items insert failed: ${itemsError.message}`)
 
-    // Create Razorpay order
+    if (selectedPaymentMethod === 'cod') {
+      return new Response(JSON.stringify({
+        orderId: order.id,
+        paymentMethod: 'cod',
+        paymentStatus: initialPaymentStatus,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID')
+    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET')
+
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      throw new Error('Razorpay credentials not configured')
+    }
+
     const razorpayRes = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
@@ -130,7 +151,6 @@ Deno.serve(async (req) => {
       throw new Error(`Razorpay error [${razorpayRes.status}]: ${JSON.stringify(razorpayOrder)}`)
     }
 
-    // Update order with razorpay_order_id
     const { error: updateError } = await supabase
       .from('orders')
       .update({ razorpay_order_id: razorpayOrder.id })
@@ -146,6 +166,8 @@ Deno.serve(async (req) => {
       razorpayKeyId: RAZORPAY_KEY_ID,
       amount: totalAmount,
       currency: 'INR',
+      paymentMethod: 'online',
+      paymentStatus: initialPaymentStatus,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
