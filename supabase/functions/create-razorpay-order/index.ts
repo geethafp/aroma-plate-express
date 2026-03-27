@@ -18,7 +18,6 @@ type CheckoutAddress = {
   line1: string
   line2?: string
   city: string
-  state: string
   pincode: string
 }
 
@@ -53,7 +52,7 @@ Deno.serve(async (req) => {
       throw new Error('Cart is empty')
     }
 
-    if (!address?.name || !address?.phone || !address?.line1 || !address?.city || !address?.state || !address?.pincode) {
+    if (!address?.name || !address?.phone || !address?.line1 || !address?.city || !address?.pincode) {
       throw new Error('Incomplete delivery address')
     }
 
@@ -92,7 +91,7 @@ Deno.serve(async (req) => {
         address_line1: address.line1,
         address_line2: address.line2 || null,
         city: address.city,
-        state: address.state,
+        state: '',
         pincode: address.pincode,
         delivery_date: deliveryDate,
         delivery_time: deliveryTime,

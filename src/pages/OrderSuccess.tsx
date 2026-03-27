@@ -11,7 +11,7 @@ interface OrderData {
   orderId: string;
   customerName: string;
   phone: string;
-  address: { line1: string; line2?: string; city: string; state: string; pincode: string };
+  address: { line1: string; line2?: string; city: string; pincode: string };
   deliveryDate: string;
   deliveryTime: string;
   items: { name: string; quantity: number; price: number }[];
@@ -95,7 +95,7 @@ const OrderSuccess = () => {
               {orderData.address.line2 ? `, ${orderData.address.line2}` : ''}
             </p>
             <p className="text-sm text-muted-foreground">
-              {orderData.address.city}, {orderData.address.state} - {orderData.address.pincode}
+              {orderData.address.city} - {orderData.address.pincode}
             </p>
             <p className="text-sm text-muted-foreground">Phone: +91 {orderData.phone}</p>
           </div>

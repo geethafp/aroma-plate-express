@@ -49,7 +49,6 @@ const Cart = () => {
     line1: '',
     line2: '',
     city: '',
-    state: '',
     pincode: '',
   });
 
@@ -65,7 +64,7 @@ const Cart = () => {
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!address.name || !address.phone || !address.line1 || !address.city || !address.state || !address.pincode) {
+    if (!address.name || !address.phone || !address.line1 || !address.city || !address.pincode) {
       toast.error('Please fill all required fields');
       return;
     }
@@ -81,7 +80,6 @@ const Cart = () => {
       line1: address.line1,
       line2: address.line2,
       city: address.city,
-      state: address.state,
       pincode: address.pincode,
     },
     deliveryDate: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '',
@@ -314,9 +312,8 @@ const Cart = () => {
                 </div>
                 <input type="text" placeholder="Address Line 1 *" value={address.line1} onChange={(e) => setAddress((current) => ({ ...current, line1: e.target.value }))} className="h-12 w-full rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
                 <input type="text" placeholder="Address Line 2 (Landmark)" value={address.line2} onChange={(e) => setAddress((current) => ({ ...current, line2: e.target.value }))} className="h-12 w-full rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <input type="text" placeholder="City *" value={address.city} onChange={(e) => setAddress((current) => ({ ...current, city: e.target.value }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
-                  <input type="text" placeholder="State *" value={address.state} onChange={(e) => setAddress((current) => ({ ...current, state: e.target.value }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
                   <input type="text" placeholder="PIN Code *" maxLength={6} value={address.pincode} onChange={(e) => setAddress((current) => ({ ...current, pincode: e.target.value.replace(/\D/g, '') }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
                 </div>
                 <button type="submit" className="mt-4 w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]">
@@ -346,7 +343,7 @@ const Cart = () => {
                   {address.line2 ? `, ${address.line2}` : ''}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {address.city}, {address.state} - {address.pincode}
+                  {address.city} - {address.pincode}
                 </p>
                 <p className="text-sm text-muted-foreground">Phone: +91 {address.phone}</p>
               </div>
