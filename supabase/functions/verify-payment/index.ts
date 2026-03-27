@@ -32,6 +32,34 @@ Deno.serve(async (req) => {
 
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = await req.json()
 
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !order_id) {
+      throw new Error('Missing payment verification fields')
+    }
+
+    const { data: existingOrder, error: existingOrderError } = await supabase
+      .from('orders')
+      .select('id, razorpay_order_id, payment_status')
+      .eq('id', order_id)
+      .single()
+
+    if (existingOrderError || !existingOrder) {
+      throw new Error('Order not found')
+    }
+
+    if (existingOrder.razorpay_order_id !== razorpay_order_id) {
+      await supabase.from('orders').update({ payment_status: 'failed' }).eq('id', order_id)
+      return new Response(JSON.stringify({ error: 'Order mismatch during payment verification' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (existingOrder.payment_status === 'paid') {
+      return new Response(JSON.stringify({ success: true, alreadyPaid: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Verify HMAC signature
     const isValid = await verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature, RAZORPAY_KEY_SECRET)
     if (!isValid) {

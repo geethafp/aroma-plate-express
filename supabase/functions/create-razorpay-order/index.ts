@@ -5,6 +5,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
+type CheckoutItem = {
+  id: string
+  name: string
+  price: number
+  quantity: number
+}
+
+type CheckoutAddress = {
+  name: string
+  phone: string
+  line1: string
+  line2?: string
+  city: string
+  state: string
+  pincode: string
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -22,10 +39,44 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const { items, address, deliveryDate, deliveryTime } = await req.json()
+    const { items, address, deliveryDate, deliveryTime } = await req.json() as {
+      items: CheckoutItem[]
+      address: CheckoutAddress
+      deliveryDate: string
+      deliveryTime: string
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Error('Cart is empty')
+    }
+
+    if (!address?.name || !address?.phone || !address?.line1 || !address?.city || !address?.state || !address?.pincode) {
+      throw new Error('Incomplete delivery address')
+    }
+
+    if (!deliveryDate || !deliveryTime) {
+      throw new Error('Delivery date and time are required')
+    }
+
+    const invalidItem = items.find((item) =>
+      !item?.id ||
+      !item?.name ||
+      !Number.isFinite(item.price) ||
+      item.price <= 0 ||
+      !Number.isInteger(item.quantity) ||
+      item.quantity <= 0
+    )
+
+    if (invalidItem) {
+      throw new Error('Invalid cart item payload')
+    }
 
     // Calculate total in paise
-    const totalAmount = items.reduce((sum: number, item: any) => sum + item.price * item.quantity * 100, 0)
+    const totalAmount = items.reduce((sum: number, item) => sum + item.price * item.quantity * 100, 0)
+
+    if (!Number.isInteger(totalAmount) || totalAmount <= 0) {
+      throw new Error('Invalid order total')
+    }
 
     // Insert order into DB
     const { data: order, error: orderError } = await supabase
@@ -49,7 +100,7 @@ Deno.serve(async (req) => {
     if (orderError) throw new Error(`DB insert failed: ${orderError.message}`)
 
     // Insert order items
-    const orderItems = items.map((item: any) => ({
+    const orderItems = items.map((item) => ({
       order_id: order.id,
       item_id: item.id,
       item_name: item.name,
@@ -80,10 +131,14 @@ Deno.serve(async (req) => {
     }
 
     // Update order with razorpay_order_id
-    await supabase
+    const { error: updateError } = await supabase
       .from('orders')
       .update({ razorpay_order_id: razorpayOrder.id })
       .eq('id', order.id)
+
+    if (updateError) {
+      throw new Error(`Order update failed: ${updateError.message}`)
+    }
 
     return new Response(JSON.stringify({
       orderId: order.id,
