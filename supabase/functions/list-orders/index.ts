@@ -30,53 +30,9 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
-    const authHeader = req.headers.get('Authorization')
 
-    if (!supabaseUrl || !serviceRoleKey || !anonKey) {
+    if (!supabaseUrl || !serviceRoleKey) {
       throw new Error('Supabase environment variables are not configured')
-    }
-
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    const authClient = createClient(supabaseUrl, anonKey, {
-      global: {
-        headers: {
-          Authorization: authHeader,
-        },
-      },
-    })
-
-    const {
-      data: { user },
-      error: authError,
-    } = await authClient.auth.getUser()
-
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    const allowedEmails = (Deno.env.get('ADMIN_EMAILS') ?? '')
-      .split(',')
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean)
-
-    if (
-      allowedEmails.length > 0 &&
-      (!user.email || !allowedEmails.includes(user.email.toLowerCase()))
-    ) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
     }
 
     const payload = ((await req.json().catch(() => ({}))) ?? {}) as ListOrdersRequest
@@ -134,9 +90,6 @@ Deno.serve(async (req) => {
         page,
         total: count ?? 0,
         totalPages: Math.max(1, Math.ceil((count ?? 0) / limit)),
-        user: {
-          email: user.email ?? null,
-        },
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

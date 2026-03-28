@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import type { Session } from '@supabase/supabase-js';
-import { Loader2, LogOut, RefreshCcw, Search, ShieldCheck } from 'lucide-react';
+import { RefreshCcw, Search, ShieldCheck } from 'lucide-react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,9 +43,6 @@ type OrdersResponse = {
   page: number;
   total: number;
   totalPages: number;
-  user?: {
-    email: string | null;
-  };
 };
 
 const paymentStatuses: PaymentStatus[] = ['all', 'pending', 'paid', 'failed', 'cod_pending'];
@@ -84,8 +79,6 @@ const formatDeliveryDate = (value: string) =>
   });
 
 const Orders = () => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [sessionLoading, setSessionLoading] = useState(true);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -96,30 +89,6 @@ const Orders = () => {
   const [searchInput, setSearchInput] = useState('');
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('all');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('all');
-  const [viewerEmail, setViewerEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      setSession(data.session ?? null);
-      setSessionLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (!mounted) return;
-      setSession(nextSession);
-      setSessionLoading(false);
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -135,14 +104,6 @@ const Orders = () => {
   }, [paymentStatus, paymentMethod]);
 
   useEffect(() => {
-    if (!session) {
-      setOrders([]);
-      setTotal(0);
-      setTotalPages(1);
-      setViewerEmail(null);
-      return;
-    }
-
     let cancelled = false;
 
     const fetchOrders = async () => {
@@ -173,7 +134,6 @@ const Orders = () => {
       setOrders(data?.orders ?? []);
       setTotal(data?.total ?? 0);
       setTotalPages(data?.totalPages ?? 1);
-      setViewerEmail(data?.user?.email ?? session.user.email ?? null);
       setFetching(false);
     };
 
@@ -182,26 +142,13 @@ const Orders = () => {
     return () => {
       cancelled = true;
     };
-  }, [page, paymentMethod, paymentStatus, search, session]);
+  }, [page, paymentMethod, paymentStatus, search]);
 
   const headline = useMemo(() => {
     if (fetching) return 'Refreshing orders...';
     if (total === 0) return 'No matching orders';
     return `${total} order${total === 1 ? '' : 's'} received`;
   }, [fetching, total]);
-
-  const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/#/orders`,
-      },
-    });
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -219,43 +166,10 @@ const Orders = () => {
                 Search customer orders, inspect payment status, and review delivery details without leaving the storefront app.
               </p>
             </div>
-
-            {session && (
-              <div className="flex flex-col items-start gap-3 rounded-2xl bg-background/80 p-4 text-sm md:items-end">
-                <div className="text-muted-foreground">
-                  Signed in as <span className="font-medium text-foreground">{viewerEmail ?? session.user.email ?? 'Admin user'}</span>
-                </div>
-                <Button variant="outline" onClick={signOut} className="gap-2">
-                  <LogOut size={16} />
-                  Sign out
-                </Button>
-              </div>
-            )}
           </div>
-
-          {!sessionLoading && !session && (
-            <div className="rounded-2xl border border-dashed border-border bg-background/80 p-6">
-              <h2 className="text-lg font-semibold text-foreground">Sign in to view orders</h2>
-              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                The dashboard fetches orders through a protected Supabase edge function, so you need an authenticated session before records can be loaded.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Button onClick={signInWithGoogle}>Continue with Google</Button>
-                <Button asChild variant="outline">
-                  <Link to="/login">Open login page</Link>
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
 
-        {sessionLoading ? (
-          <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Checking your session...
-          </div>
-        ) : session ? (
-          <div className="space-y-6">
+        <div className="space-y-6">
             <section className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
               <div className="rounded-3xl border border-border/60 bg-card p-5 shadow-sm">
                 <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -413,8 +327,7 @@ const Orders = () => {
                 </div>
               </div>
             )}
-          </div>
-        ) : null}
+        </div>
       </main>
     </div>
   );
