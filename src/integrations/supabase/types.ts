@@ -60,7 +60,6 @@ export type Database = {
           delivery_date: string
           delivery_time: string
           id: string
-          payment_method: string
           payment_status: string
           pincode: string
           razorpay_order_id: string | null
@@ -79,7 +78,6 @@ export type Database = {
           delivery_date: string
           delivery_time: string
           id?: string
-          payment_method?: string
           payment_status?: string
           pincode: string
           razorpay_order_id?: string | null
@@ -98,7 +96,6 @@ export type Database = {
           delivery_date?: string
           delivery_time?: string
           id?: string
-          payment_method?: string
           payment_status?: string
           pincode?: string
           razorpay_order_id?: string | null
