@@ -6,7 +6,6 @@ import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable';
 
 type PaymentStatus = 'all' | 'pending' | 'paid' | 'failed' | 'cod_pending';
 type PaymentMethod = 'all' | 'online' | 'cod';
@@ -192,8 +191,11 @@ const Orders = () => {
   }, [fetching, total]);
 
   const signInWithGoogle = async () => {
-    await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: `${window.location.origin}${window.location.pathname}#/orders`,
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/#/orders`,
+      },
     });
   };
 

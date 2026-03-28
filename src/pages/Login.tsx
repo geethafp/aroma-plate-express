@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
-import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 
@@ -121,8 +121,11 @@ const Login = () => {
 
               <button
                 onClick={async () => {
-                  const { error } = await lovable.auth.signInWithOAuth('google', {
-                    redirect_uri: window.location.origin,
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                      redirectTo: window.location.origin,
+                    },
                   });
                   if (error) console.error('Google sign-in error:', error);
                 }}
