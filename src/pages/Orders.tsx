@@ -110,20 +110,46 @@ const Orders = () => {
       setFetching(true);
       setError(null);
 
-      const { data, error: invokeError } = await supabase.functions.invoke<OrdersResponse>('list-orders', {
-        body: {
-          limit: 10,
-          page,
-          paymentMethod,
-          paymentStatus,
-          search,
-        },
-      });
+      const from = (page - 1) * 10;
+      const to = from + 9;
+
+      let query = supabase
+        .from('orders')
+        .select(
+          'id, customer_name, customer_phone, address_line1, address_line2, city, state, pincode, delivery_date, delivery_time, total_amount, payment_status, payment_method, razorpay_order_id, razorpay_payment_id, created_at, order_items(id, item_id, item_name, item_price, quantity)',
+          { count: 'exact' }
+        )
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (paymentStatus !== 'all') {
+        query = query.eq('payment_status', paymentStatus);
+      }
+
+      if (paymentMethod !== 'all') {
+        query = query.eq('payment_method', paymentMethod);
+      }
+
+      if (search) {
+        const filters = [
+          `customer_name.ilike.%${search}%`,
+          `customer_phone.ilike.%${search}%`,
+          `city.ilike.%${search}%`,
+        ];
+
+        if (/^[0-9a-f-]{36}$/i.test(search)) {
+          filters.push(`id.eq.${search}`);
+        }
+
+        query = query.or(filters.join(','));
+      }
+
+      const { data, error: queryError, count } = await query;
 
       if (cancelled) return;
 
-      if (invokeError || data?.error) {
-        setError(data?.error ?? invokeError?.message ?? 'Failed to fetch orders');
+      if (queryError) {
+        setError(queryError.message || 'Failed to fetch orders');
         setOrders([]);
         setTotal(0);
         setTotalPages(1);
@@ -131,9 +157,9 @@ const Orders = () => {
         return;
       }
 
-      setOrders(data?.orders ?? []);
-      setTotal(data?.total ?? 0);
-      setTotalPages(data?.totalPages ?? 1);
+      setOrders((data ?? []) as OrderRecord[]);
+      setTotal(count ?? 0);
+      setTotalPages(Math.max(1, Math.ceil((count ?? 0) / 10)));
       setFetching(false);
     };
 
