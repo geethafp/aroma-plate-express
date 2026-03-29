@@ -105,6 +105,7 @@ export const fallbackMenuItems: MenuItem[] = [
 
 type MenuItemRow = Tables<'menu_items'>;
 const fallbackImage = biryani;
+export const MENU_STORAGE_KEY = 'aroma-plate-menu-items';
 
 export const mapMenuItemRowToMenuItem = (item: MenuItemRow): MenuItem => ({
   id: item.id,
@@ -116,3 +117,24 @@ export const mapMenuItemRowToMenuItem = (item: MenuItemRow): MenuItem => ({
   serves: item.serves,
   prepTime: item.prep_time,
 });
+
+export const loadStoredMenuItems = (): MenuItem[] | null => {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw = window.localStorage.getItem(MENU_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+
+    return parsed as MenuItem[];
+  } catch {
+    return null;
+  }
+};
+
+export const saveStoredMenuItems = (items: MenuItem[]) => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(items));
+};

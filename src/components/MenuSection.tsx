@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import DishCard from './DishCard';
 import type { MenuItem } from '@/lib/cart-context';
-import { fallbackMenuItems, mapMenuItemRowToMenuItem } from '@/lib/menu-data';
+import { fallbackMenuItems, loadStoredMenuItems, mapMenuItemRowToMenuItem } from '@/lib/menu-data';
 import { supabase } from '@/integrations/supabase/client';
 
 const categories = [
@@ -15,6 +15,7 @@ const categories = [
 
 const MenuSection = () => {
   const [active, setActive] = useState<string>('all');
+  const [localMenuItems, setLocalMenuItems] = useState<MenuItem[] | null>(null);
   const { data } = useQuery({
     queryKey: ['menu-items'],
     queryFn: async () => {
@@ -33,7 +34,25 @@ const MenuSection = () => {
     staleTime: 60_000,
   });
 
-  const menuItems: MenuItem[] = data && data.length > 0 ? data : fallbackMenuItems;
+  useEffect(() => {
+    setLocalMenuItems(loadStoredMenuItems());
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key === 'aroma-plate-menu-items') {
+        setLocalMenuItems(loadStoredMenuItems());
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const menuItems: MenuItem[] =
+    localMenuItems !== null
+      ? localMenuItems
+      : data && data.length > 0
+        ? data
+        : fallbackMenuItems;
 
   const filtered = active === 'all' ? menuItems : menuItems.filter((item) => item.category === active);
 
