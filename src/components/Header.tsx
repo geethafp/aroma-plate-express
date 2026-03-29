@@ -52,6 +52,11 @@ const Header = () => {
           <Link to="/orders" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Orders
           </Link>
+          {session && (
+            <Link to="/menu-admin" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Menu Admin
+            </Link>
+          )}
         </nav>
         <div className="flex items-center gap-4">
           <Link to="/login" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -95,6 +100,11 @@ const Header = () => {
               <Link to="/orders" onClick={() => setMenuOpen(false)} className="py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Orders
               </Link>
+              {session && (
+                <Link to="/menu-admin" onClick={() => setMenuOpen(false)} className="py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Menu Admin
+                </Link>
+              )}
             </nav>
           </motion.div>
         )}
