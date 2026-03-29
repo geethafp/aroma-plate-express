@@ -127,7 +127,7 @@ const Orders = () => {
       }
 
       if (paymentMethod !== 'all') {
-        query = query.eq('payment_method', paymentMethod);
+        query = query.eq('payment_method' as any, paymentMethod);
       }
 
       if (search) {
@@ -157,7 +157,7 @@ const Orders = () => {
         return;
       }
 
-      setOrders((data ?? []) as OrderRecord[]);
+      setOrders((data ?? []) as unknown as OrderRecord[]);
       setTotal(count ?? 0);
       setTotalPages(Math.max(1, Math.ceil((count ?? 0) / 10)));
       setFetching(false);
