@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import DishCard from './DishCard';
 import type { MenuItem } from '@/lib/cart-context';
-import { fallbackMenuItems } from '@/lib/menu-data';
+import { fallbackMenuItems, mapMenuItemRowToMenuItem } from '@/lib/menu-data';
+import { supabase } from '@/integrations/supabase/client';
 
 const categories = [
   { key: 'all', label: 'All Dishes' },
@@ -13,7 +15,25 @@ const categories = [
 
 const MenuSection = () => {
   const [active, setActive] = useState<string>('all');
-  const menuItems: MenuItem[] = fallbackMenuItems;
+  const { data } = useQuery({
+    queryKey: ['menu-items'],
+    queryFn: async () => {
+      const { data: menuItems, error } = await supabase
+        .from('menu_items')
+        .select('id, name, description, price, image_path, image_url, category, serves, prep_time, sort_order')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) {
+        throw error;
+      }
+
+      return (menuItems ?? []).map(mapMenuItemRowToMenuItem);
+    },
+    staleTime: 60_000,
+  });
+
+  const menuItems: MenuItem[] = data && data.length > 0 ? data : fallbackMenuItems;
 
   const filtered = active === 'all' ? menuItems : menuItems.filter((item) => item.category === active);
 

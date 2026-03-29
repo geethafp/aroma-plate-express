@@ -1,4 +1,5 @@
 import type { MenuItem } from './cart-context';
+import type { Tables } from '@/integrations/supabase/types';
 import biryani from '@/assets/biryani.jpg';
 import gajarHalwa from '@/assets/gajar-halwa.jpg';
 import gulabJamun from '@/assets/gulab-jamun.jpg';
@@ -101,3 +102,17 @@ export const fallbackMenuItems: MenuItem[] = [
     prepTime: '3 hours',
   },
 ];
+
+type MenuItemRow = Tables<'menu_items'>;
+const fallbackImage = biryani;
+
+export const mapMenuItemRowToMenuItem = (item: MenuItemRow): MenuItem => ({
+  id: item.id,
+  name: item.name,
+  description: item.description,
+  price: item.price,
+  image: item.image_url || (item.image_path ? menuImageMap[item.image_path as keyof typeof menuImageMap] : undefined) || fallbackImage,
+  category: item.category as MenuItem['category'],
+  serves: item.serves,
+  prepTime: item.prep_time,
+});
