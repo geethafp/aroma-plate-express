@@ -116,7 +116,7 @@ const Orders = () => {
       let query = supabase
         .from('orders')
         .select(
-          'id, customer_name, customer_phone, address_line1, address_line2, city, state, pincode, delivery_date, delivery_time, total_amount, payment_status, payment_method, razorpay_order_id, razorpay_payment_id, created_at, order_items(id, item_id, item_name, item_price, quantity)',
+          'id, customer_name, customer_phone, address_line1, address_line2, city, state, pincode, delivery_date, delivery_time, total_amount, payment_status, razorpay_order_id, razorpay_payment_id, created_at, order_items(id, item_id, item_name, item_price, quantity)',
           { count: 'exact' }
         )
         .order('created_at', { ascending: false })
@@ -124,10 +124,6 @@ const Orders = () => {
 
       if (paymentStatus !== 'all') {
         query = query.eq('payment_status', paymentStatus);
-      }
-
-      if (paymentMethod !== 'all') {
-        query = query.eq('payment_method' as any, paymentMethod);
       }
 
       if (search) {
