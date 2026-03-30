@@ -1,5 +1,3 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -13,9 +11,10 @@ Deno.serve(async (req) => {
   try {
     const MSG91_AUTH_KEY = Deno.env.get('MSG91_AUTH_KEY')
     const MSG91_TEMPLATE_ID = Deno.env.get('MSG91_TEMPLATE_ID')
+    const otpSetupHint = 'Configure Supabase secrets MSG91_AUTH_KEY and MSG91_TEMPLATE_ID in the dashboard. MSG91_WHATSAPP_NUMBER is not used for login OTP.'
 
-    if (!MSG91_AUTH_KEY) throw new Error('MSG91_AUTH_KEY not configured')
-    if (!MSG91_TEMPLATE_ID) throw new Error('MSG91_TEMPLATE_ID not configured')
+    if (!MSG91_AUTH_KEY) throw new Error(`MSG91_AUTH_KEY not configured. ${otpSetupHint}`)
+    if (!MSG91_TEMPLATE_ID) throw new Error(`MSG91_TEMPLATE_ID not configured. ${otpSetupHint}`)
 
     const { phone } = await req.json()
 
@@ -48,7 +47,7 @@ Deno.serve(async (req) => {
 
     if (!response.ok || result.type === 'error') {
       console.error('MSG91 OTP send error:', result)
-      throw new Error(result.message || 'Failed to send OTP')
+      throw new Error(result.message || `Failed to send OTP. ${otpSetupHint}`)
     }
 
     return new Response(JSON.stringify({ success: true, message: 'OTP sent via WhatsApp' }), {

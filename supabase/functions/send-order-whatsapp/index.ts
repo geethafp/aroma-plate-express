@@ -10,7 +10,12 @@ Deno.serve(async (req) => {
 
   try {
     const MSG91_AUTH_KEY = Deno.env.get('MSG91_AUTH_KEY')
+    const MSG91_WHATSAPP_NUMBER = Deno.env.get('MSG91_WHATSAPP_NUMBER')
+
     if (!MSG91_AUTH_KEY) throw new Error('MSG91_AUTH_KEY not configured')
+    if (!MSG91_WHATSAPP_NUMBER) {
+      throw new Error('MSG91_WHATSAPP_NUMBER not configured. This is only required for order confirmation WhatsApp messages, not login OTP.')
+    }
 
     const {
       phone,
@@ -46,7 +51,7 @@ Deno.serve(async (req) => {
         'authkey': MSG91_AUTH_KEY,
       },
       body: JSON.stringify({
-        integrated_number: Deno.env.get('MSG91_WHATSAPP_NUMBER') || '',
+        integrated_number: MSG91_WHATSAPP_NUMBER,
         content_type: 'text',
         payload: {
           messaging_product: 'whatsapp',
