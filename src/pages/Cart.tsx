@@ -72,8 +72,8 @@ const Cart = () => {
     setStep('confirm');
   };
 
-  const buildOrderSuccessState = (paymentId?: string | null) => ({
-    orderId: '',
+  const buildOrderSuccessState = (orderId: string, paymentId?: string | null) => ({
+    orderId,
     customerName: address.name,
     phone: address.phone,
     address: {
@@ -93,6 +93,26 @@ const Cart = () => {
     paymentId,
     paymentMethod,
   });
+
+  const sendWhatsAppConfirmation = async (orderId: string) => {
+    try {
+      await supabase.functions.invoke('send-order-whatsapp', {
+        body: {
+          phone: address.phone,
+          customerName: address.name,
+          orderId,
+          totalAmount: totalPrice,
+          deliveryDate: deliveryDate ? format(deliveryDate, 'dd MMM yyyy') : '',
+          deliveryTime,
+          paymentMethod,
+          items: items.map((item) => ({ name: item.name, quantity: item.quantity })),
+        },
+      });
+    } catch {
+      // Non-critical: don't block navigation
+      console.warn('WhatsApp confirmation failed');
+    }
+  };
 
   const handlePayment = async () => {
     if (paying) return;
