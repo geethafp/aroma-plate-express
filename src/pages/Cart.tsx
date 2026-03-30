@@ -180,12 +180,9 @@ const Cart = () => {
             }
 
             clearCart();
+            sendWhatsAppConfirmation(orderId);
             navigate('/order-success', {
-              state: {
-                ...buildOrderSuccessState(response.razorpay_payment_id),
-                orderId,
-                paymentMethod: 'online',
-              },
+              state: buildOrderSuccessState(orderId, response.razorpay_payment_id),
             });
           } catch (err: unknown) {
             toast.error(extractFunctionError(err, 'Something went wrong verifying payment'));
