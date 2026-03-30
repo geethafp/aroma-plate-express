@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
 import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 
@@ -13,10 +15,31 @@ const Login = () => {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [step, setStep] = useState<'phone' | 'otp' | 'success'>('phone');
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.length === 10) setStep('otp');
+    if (phone.length !== 10 || sending) return;
+
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-whatsapp-otp', {
+        body: { phone },
+      });
+
+      if (error || data?.error) {
+        toast.error(data?.error || 'Failed to send OTP');
+        return;
+      }
+
+      toast.success('OTP sent to your WhatsApp!');
+      setStep('otp');
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -29,7 +52,7 @@ const Login = () => {
       next?.focus();
     }
     if (newOtp.every(d => d !== '')) {
-      setTimeout(() => setStep('success'), 500);
+      verifyOtp(newOtp.join(''));
     }
   };
 
@@ -37,6 +60,51 @@ const Login = () => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       const prev = document.getElementById(`otp-${index - 1}`);
       prev?.focus();
+    }
+  };
+
+  const verifyOtp = async (otpCode: string) => {
+    if (verifying) return;
+    setVerifying(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-whatsapp-otp', {
+        body: { phone, otp: otpCode },
+      });
+
+      if (error || data?.error) {
+        toast.error(data?.error || 'Invalid OTP. Please try again.');
+        setOtp(['', '', '', '']);
+        document.getElementById('otp-0')?.focus();
+        return;
+      }
+
+      if (data?.verified) {
+        setStep('success');
+      }
+    } catch {
+      toast.error('Verification failed. Please try again.');
+      setOtp(['', '', '', '']);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-whatsapp-otp', {
+        body: { phone },
+      });
+      if (error || data?.error) {
+        toast.error('Failed to resend OTP');
+      } else {
+        toast.success('OTP resent to your WhatsApp!');
+      }
+    } catch {
+      toast.error('Something went wrong.');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -75,7 +143,7 @@ const Login = () => {
           className="w-full max-w-sm"
         >
           {step === 'otp' && (
-            <button onClick={() => setStep('phone')} className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={() => { setStep('phone'); setOtp(['', '', '', '']); }} className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft size={16} /> Back
             </button>
           )}
@@ -84,8 +152,8 @@ const Login = () => {
           </h2>
           <p className="text-muted-foreground mb-8">
             {step === 'phone'
-              ? 'Enter your mobile number to continue.'
-              : `We sent a 4-digit code to +91 ${phone}`}
+              ? 'Enter your mobile number to receive OTP on WhatsApp.'
+              : `We sent a 4-digit code to your WhatsApp (+91 ${phone})`}
           </p>
 
           {step === 'phone' ? (
@@ -106,10 +174,11 @@ const Login = () => {
                 </div>
                 <button
                   type="submit"
-                  disabled={phone.length !== 10}
-                  className="w-full rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground disabled:opacity-40 active:scale-[0.98] transition-all"
+                  disabled={phone.length !== 10 || sending}
+                  className="w-full rounded-xl bg-[#25D366] py-3.5 text-sm font-medium text-white disabled:opacity-40 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
-                  Send OTP
+                  <MessageCircle size={18} />
+                  {sending ? 'Sending...' : 'Send OTP via WhatsApp'}
                 </button>
               </form>
 
@@ -152,11 +221,19 @@ const Login = () => {
                     onKeyDown={e => handleOtpKeyDown(i, e)}
                     className="h-14 w-14 rounded-xl bg-card card-shadow text-center text-xl font-bold text-foreground outline-none focus:ring-2 focus:ring-primary transition-all font-mono-price"
                     autoFocus={i === 0}
+                    disabled={verifying}
                   />
                 ))}
               </div>
-              <button className="w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors">
-                Resend OTP
+              {verifying && (
+                <p className="text-center text-sm text-muted-foreground animate-pulse">Verifying...</p>
+              )}
+              <button
+                onClick={handleResendOtp}
+                disabled={sending}
+                className="w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                {sending ? 'Resending...' : 'Resend OTP'}
               </button>
             </div>
           )}
