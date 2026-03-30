@@ -140,13 +140,11 @@ const Cart = () => {
       }
 
       if (paymentMethod === 'cod') {
+        const codOrderId = data.orderId;
         clearCart();
+        sendWhatsAppConfirmation(codOrderId);
         navigate('/order-success', {
-          state: {
-            ...buildOrderSuccessState(null),
-            orderId: data.orderId,
-            paymentMethod: 'cod',
-          },
+          state: buildOrderSuccessState(codOrderId, null),
         });
         return;
       }
