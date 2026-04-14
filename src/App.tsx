@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { RequireAdminAccess } from "@/components/RequireAdminAccess";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import Index from "./pages/Index";
@@ -34,8 +35,22 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/menu-admin" element={<MenuAdmin />} />
+              <Route
+                path="/orders"
+                element={
+                  <RequireAdminAccess>
+                    <Orders />
+                  </RequireAdminAccess>
+                }
+              />
+              <Route
+                path="/menu-admin"
+                element={
+                  <RequireAdminAccess>
+                    <MenuAdmin />
+                  </RequireAdminAccess>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

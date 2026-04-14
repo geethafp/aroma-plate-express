@@ -22,6 +22,11 @@ const parsePositiveInt = (value: unknown, fallback: number) => {
   return Number.isInteger(numeric) && numeric > 0 ? numeric : fallback
 }
 
+const allowedAdminEmails = new Set([
+  'gfp.vja@gmail.com',
+  'vamseekonkinmalla@gmail.com',
+])
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -35,6 +40,16 @@ Deno.serve(async (req) => {
       throw new Error('Supabase environment variables are not configured')
     }
 
+    const authorization = req.headers.get('Authorization') ?? req.headers.get('authorization')
+    const bearerToken = authorization?.startsWith('Bearer ') ? authorization.slice(7) : null
+
+    if (!bearerToken) {
+      return new Response(JSON.stringify({ error: 'Authentication required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const payload = ((await req.json().catch(() => ({}))) ?? {}) as ListOrdersRequest
     const page = parsePositiveInt(payload.page, 1)
     const limit = Math.min(parsePositiveInt(payload.limit, 10), 50)
@@ -45,6 +60,21 @@ Deno.serve(async (req) => {
     const search = payload.search?.trim() ?? ''
 
     const serviceClient = createClient(supabaseUrl, serviceRoleKey)
+    const { data: authUserData, error: authUserError } = await serviceClient.auth.getUser(bearerToken)
+
+    if (authUserError || !authUserData.user?.email) {
+      return new Response(JSON.stringify({ error: 'Invalid session' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!allowedAdminEmails.has(authUserData.user.email.toLowerCase())) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     let query = serviceClient
       .from('orders')

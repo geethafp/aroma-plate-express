@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RefreshCcw, Search, ShieldCheck } from 'lucide-react';
 import Header from '@/components/Header';
+import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -111,36 +112,17 @@ const Orders = () => {
       setError(null);
 
       const from = (page - 1) * 10;
-      const to = from + 9;
+      const payload = {
+        limit: 10,
+        page,
+        paymentMethod,
+        paymentStatus,
+        search,
+      };
 
-      let query = supabase
-        .from('orders')
-        .select(
-          'id, customer_name, customer_phone, address_line1, address_line2, city, state, pincode, delivery_date, delivery_time, total_amount, payment_status, razorpay_order_id, razorpay_payment_id, created_at, order_items(id, item_id, item_name, item_price, quantity)',
-          { count: 'exact' }
-        )
-        .order('created_at', { ascending: false })
-        .range(from, to);
-
-      if (paymentStatus !== 'all') {
-        query = query.eq('payment_status', paymentStatus);
-      }
-
-      if (search) {
-        const filters = [
-          `customer_name.ilike.%${search}%`,
-          `customer_phone.ilike.%${search}%`,
-          `city.ilike.%${search}%`,
-        ];
-
-        if (/^[0-9a-f-]{36}$/i.test(search)) {
-          filters.push(`id.eq.${search}`);
-        }
-
-        query = query.or(filters.join(','));
-      }
-
-      const { data, error: queryError, count } = await query;
+      const { data, error: queryError } = await supabase.functions.invoke<OrdersResponse>('list-orders', {
+        body: payload,
+      });
 
       if (cancelled) return;
 
@@ -153,9 +135,9 @@ const Orders = () => {
         return;
       }
 
-      setOrders((data ?? []) as unknown as OrderRecord[]);
-      setTotal(count ?? 0);
-      setTotalPages(Math.max(1, Math.ceil((count ?? 0) / 10)));
+      setOrders((data?.orders ?? []) as OrderRecord[]);
+      setTotal(data?.total ?? 0);
+      setTotalPages(data?.totalPages ?? 1);
       setFetching(false);
     };
 
@@ -175,6 +157,7 @@ const Orders = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <BreadcrumbTrail />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 flex flex-col gap-4 rounded-3xl border border-border/60 bg-card/70 p-6 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
