@@ -110,7 +110,6 @@ export type Database = {
           razorpay_signature: string | null
           state: string
           total_amount: number
-          user_id: string | null
         }
         Insert: {
           address_line1: string
@@ -130,7 +129,6 @@ export type Database = {
           razorpay_signature?: string | null
           state: string
           total_amount: number
-          user_id?: string | null
         }
         Update: {
           address_line1?: string
@@ -150,49 +148,6 @@ export type Database = {
           razorpay_signature?: string | null
           state?: string
           total_amount?: number
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      saved_addresses: {
-        Row: {
-          address_line1: string
-          address_line2: string | null
-          city: string
-          created_at: string
-          id: string
-          phone: string
-          pincode: string
-          recipient_name: string
-          state: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          address_line1: string
-          address_line2?: string | null
-          city: string
-          created_at?: string
-          id?: string
-          phone: string
-          pincode: string
-          recipient_name: string
-          state?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          address_line1?: string
-          address_line2?: string | null
-          city?: string
-          created_at?: string
-          id?: string
-          phone?: string
-          pincode?: string
-          recipient_name?: string
-          state?: string
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
