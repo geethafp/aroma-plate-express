@@ -1,1 +1,19 @@
 project_id = "tgfhefcxalsteywdieia"
+
+[functions.create-razorpay-order]
+verify_jwt = false
+
+[functions.list-orders]
+verify_jwt = false
+
+[functions.send-order-whatsapp]
+verify_jwt = false
+
+[functions.send-whatsapp-otp]
+verify_jwt = false
+
+[functions.verify-payment]
+verify_jwt = false
+
+[functions.verify-whatsapp-otp]
+verify_jwt = false
