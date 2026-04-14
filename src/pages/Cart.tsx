@@ -14,6 +14,33 @@ const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 
 const formatCurrency = (amount: number) => `Rs. ${amount.toLocaleString('en-IN')}`;
 
+const loadRazorpayCheckout = async () => {
+  if (typeof window === 'undefined') return false;
+  if (window.Razorpay) return true;
+
+  const existingScript = document.querySelector<HTMLScriptElement>('script[data-razorpay-checkout="true"]');
+  if (existingScript) {
+    await new Promise<void>((resolve, reject) => {
+      existingScript.addEventListener('load', () => resolve(), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load Razorpay checkout')), { once: true });
+    }).catch(() => undefined);
+
+    return typeof window.Razorpay !== 'undefined';
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.dataset.razorpayCheckout = 'true';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Razorpay checkout'));
+    document.body.appendChild(script);
+  });
+
+  return typeof window.Razorpay !== 'undefined';
+};
+
 const extractFunctionError = (error: unknown, fallback: string) => {
   if (error instanceof Error) {
     const context = (error as Error & { context?: unknown }).context;
@@ -149,7 +176,8 @@ const Cart = () => {
         return;
       }
 
-      if (typeof window === 'undefined' || !window.Razorpay) {
+      const razorpayLoaded = await loadRazorpayCheckout();
+      if (typeof window === 'undefined' || !razorpayLoaded || !window.Razorpay) {
         throw new Error('Razorpay checkout failed to load. Refresh the page and try again.');
       }
 

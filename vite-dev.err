@@ -1,0 +1,264 @@
+`optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
+[vite:react-swc] We recommend switching to `@vitejs/plugin-react-oxc` for improved performance as no swc plugins are used. More information at https://vite.dev/rolldown
+[33mWarning: Invalid input options (1 issue found)
+- For the "jsx". Invalid key: Expected never but received "jsx". [0m
+[33mWarning: Invalid input options (1 issue found)
+- For the "jsx". Invalid key: Expected never but received "jsx". [0m
+Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[2m1:23:54 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:23:54 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `masala-dosa`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `idli-sambar`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `medu-vada`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `biryani`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `shahi-paneer`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `gajar-halwa`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `gulab-jamun`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:55 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: Encountered two children with the same key, `rasmalai`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at section
+    at MenuSection (http://127.0.0.1:4173/src/components/MenuSection.tsx:48:33)
+    at div
+    at Index
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:57 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: validateDOMNesting(...): <li> cannot appear as a descendant of <li>.
+    at li
+    at BreadcrumbSeparator (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:86:32)
+    at li
+    at _c4 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:47:64)
+    at ol
+    at _c2 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:36:64)
+    at nav
+    at _c (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:25:62)
+    at div
+    at div
+    at BreadcrumbTrail (http://127.0.0.1:4173/src/components/BreadcrumbTrail.tsx:34:26)
+    at div
+    at Login (http://127.0.0.1:4173/src/pages/Login.tsx:42:22)
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:23:57 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:23:57 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:23:58 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:23:58 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:24:00 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: validateDOMNesting(...): <li> cannot appear as a descendant of <li>.
+    at li
+    at BreadcrumbSeparator (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:86:32)
+    at li
+    at _c4 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:47:64)
+    at ol
+    at _c2 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:36:64)
+    at nav
+    at _c (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:25:62)
+    at div
+    at div
+    at BreadcrumbTrail (http://127.0.0.1:4173/src/components/BreadcrumbTrail.tsx:34:26)
+    at div
+    at MenuAdmin (http://127.0.0.1:4173/src/pages/MenuAdmin.tsx:60:39)
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:24:00 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:24:00 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:39:05 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:39:05 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:39:07 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:39:07 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:44:48 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: validateDOMNesting(...): <li> cannot appear as a descendant of <li>.
+    at li
+    at BreadcrumbSeparator (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:86:32)
+    at li
+    at _c4 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:47:64)
+    at ol
+    at _c2 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:36:64)
+    at nav
+    at _c (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:25:62)
+    at div
+    at div
+    at BreadcrumbTrail (http://127.0.0.1:4173/src/components/BreadcrumbTrail.tsx:34:26)
+    at div
+    at Login (http://127.0.0.1:4173/src/pages/Login.tsx?t=1776154355431:41:22)
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:44:48 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:44:48 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:45:46 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:45:46 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:45:48 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: validateDOMNesting(...): <li> cannot appear as a descendant of <li>.
+    at li
+    at BreadcrumbSeparator (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:86:32)
+    at li
+    at _c4 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:47:64)
+    at ol
+    at _c2 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:36:64)
+    at nav
+    at _c (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:25:62)
+    at div
+    at div
+    at BreadcrumbTrail (http://127.0.0.1:4173/src/components/BreadcrumbTrail.tsx:34:26)
+    at div
+    at Login (http://127.0.0.1:4173/src/pages/Login.tsx?t=1776154355431:41:22)
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:45:48 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:45:48 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+[2m1:45:49 pm[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mWarning: validateDOMNesting(...): <li> cannot appear as a descendant of <li>.
+    at li
+    at BreadcrumbSeparator (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:86:32)
+    at li
+    at _c4 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:47:64)
+    at ol
+    at _c2 (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:36:64)
+    at nav
+    at _c (http://127.0.0.1:4173/src/components/ui/breadcrumb.tsx:25:62)
+    at div
+    at div
+    at BreadcrumbTrail (http://127.0.0.1:4173/src/components/BreadcrumbTrail.tsx:34:26)
+    at div
+    at Cart (http://127.0.0.1:4173/src/pages/Cart.tsx?t=1776154340203:86:22)
+    at RenderedRoute (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3331:8)
+    at Routes (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3774:8)
+    at Router (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:3722:18)
+    at BrowserRouter (http://127.0.0.1:4173/node_modules/.vite/deps/react-router-dom.js?v=3d273902:4401:8)
+    at CartProvider (http://127.0.0.1:4173/src/lib/cart-context.tsx:24:32)
+    at Provider (http://127.0.0.1:4173/node_modules/.vite/deps/dist-C29op894.js?v=ad2860cc:23:12)
+    at TooltipProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2d7aea0:43:10)
+    at QueryClientProvider (http://127.0.0.1:4173/node_modules/.vite/deps/@tanstack_react-query.js?v=b9ffc3e2:2357:30)
+    at App
+[2m1:45:49 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+[2m1:45:49 pm[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
