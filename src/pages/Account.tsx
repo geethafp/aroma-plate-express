@@ -71,7 +71,7 @@ const Account = () => {
     enabled: !!user,
     queryKey: ['account-addresses', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('saved_addresses')
         .select('id, recipient_name, phone, address_line1, address_line2, city, state, pincode, updated_at')
         .eq('user_id', user!.id)
@@ -86,7 +86,7 @@ const Account = () => {
     enabled: !!user,
     queryKey: ['account-orders', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('orders')
         .select(
           'id, created_at, customer_name, customer_phone, address_line1, address_line2, city, state, pincode, delivery_date, delivery_time, total_amount, payment_status, payment_method, order_items(id, item_id, item_name, item_price, quantity)'
@@ -95,7 +95,7 @@ const Account = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data ?? []) as unknown as OrderRecord[];
+      return (data ?? []) as OrderRecord[];
     },
   });
 
