@@ -8,6 +8,7 @@ import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
 import DeliveryScheduler from '@/components/DeliveryScheduler';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
@@ -64,6 +65,7 @@ type PaymentMethod = 'online' | 'cod';
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCart();
   const [step, setStep] = useState<'cart' | 'schedule' | 'address' | 'confirm'>('cart');
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
@@ -349,6 +351,11 @@ const Cart = () => {
                 <h2 className="font-serif-display text-3xl tracking-tight text-foreground">Delivery Address</h2>
               </div>
               <form onSubmit={handleAddressSubmit} className="space-y-4">
+                {user?.email && (
+                  <div className="rounded-2xl bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+                    This order will be linked to <span className="font-medium text-foreground">{user.email}</span> and the delivery address will be saved to your account.
+                  </div>
+                )}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <input type="text" placeholder="Full Name *" value={address.name} onChange={(e) => setAddress((current) => ({ ...current, name: e.target.value }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />
                   <input type="tel" placeholder="Phone Number *" maxLength={10} value={address.phone} onChange={(e) => setAddress((current) => ({ ...current, phone: e.target.value.replace(/\D/g, '') }))} className="h-12 rounded-xl bg-card px-4 text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:ring-2 focus:ring-primary card-shadow" />

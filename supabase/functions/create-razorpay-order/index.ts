@@ -34,6 +34,17 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
+    const authorization = req.headers.get('Authorization') ?? req.headers.get('authorization')
+    const bearerToken = authorization?.startsWith('Bearer ') ? authorization.slice(7) : null
+
+    let signedInUserId: string | null = null
+    if (bearerToken && bearerToken.split('.').length === 3) {
+      const { data: authUserData, error: authUserError } = await supabase.auth.getUser(bearerToken)
+      if (!authUserError && authUserData.user) {
+        signedInUserId = authUserData.user.id
+      }
+    }
+
     const {
       items,
       address,
@@ -86,6 +97,7 @@ Deno.serve(async (req) => {
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
+        user_id: signedInUserId,
         customer_name: address.name,
         customer_phone: address.phone,
         address_line1: address.line1,
@@ -103,6 +115,40 @@ Deno.serve(async (req) => {
       .single()
 
     if (orderError) throw new Error(`DB insert failed: ${orderError.message}`)
+
+    if (signedInUserId) {
+      const { data: existingAddress } = await supabase
+        .from('saved_addresses')
+        .select('id')
+        .eq('user_id', signedInUserId)
+        .eq('address_line1', address.line1)
+        .eq('city', address.city)
+        .eq('pincode', address.pincode)
+        .eq('phone', address.phone)
+        .limit(1)
+
+      if (!existingAddress || existingAddress.length === 0) {
+        await supabase.from('saved_addresses').insert({
+          user_id: signedInUserId,
+          recipient_name: address.name,
+          phone: address.phone,
+          address_line1: address.line1,
+          address_line2: address.line2 || null,
+          city: address.city,
+          state: '',
+          pincode: address.pincode,
+        })
+      } else {
+        await supabase
+          .from('saved_addresses')
+          .update({
+            recipient_name: address.name,
+            address_line2: address.line2 || null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingAddress[0].id)
+      }
+    }
 
     const orderItems = items.map((item) => ({
       order_id: order.id,

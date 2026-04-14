@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/breadcrumb';
 
 const labelMap: Record<string, string> = {
+  account: 'My Account',
   about: 'About',
   cart: 'Cart',
   contact: 'Contact',

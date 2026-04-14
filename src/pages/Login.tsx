@@ -6,16 +6,41 @@ import { toast } from 'sonner';
 import BreadcrumbTrail from '@/components/BreadcrumbTrail';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/lib/auth-context';
 
 const transition = { duration: 0.3, ease: [0.2, 0, 0, 1] as const };
 
 const Login = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [step, setStep] = useState<'phone' | 'otp' | 'success'>('phone');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
+
+  if (user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <BreadcrumbTrail />
+        <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={transition} className="text-center">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+              <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="mb-2 font-serif-display text-3xl tracking-tight text-foreground">You are already signed in.</h2>
+            <p className="mb-6 text-muted-foreground">Open your account to view saved addresses and order history.</p>
+            <button onClick={() => navigate('/account')} className="rounded-xl bg-primary px-8 py-3 text-sm font-medium text-primary-foreground">
+              Go to My Account
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
