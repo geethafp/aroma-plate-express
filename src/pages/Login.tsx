@@ -56,6 +56,19 @@ const loadMsg91Widget = async () => {
   throw new Error('Unable to load MSG91 OTP widget.');
 };
 
+const extractWidgetAccessToken = (payload: Record<string, unknown>) =>
+  typeof payload['access-token'] === 'string'
+    ? payload['access-token']
+    : typeof payload.accessToken === 'string'
+      ? payload.accessToken
+      : typeof payload.access_token === 'string'
+        ? payload.access_token
+        : typeof payload.token === 'string'
+          ? payload.token
+          : payload.data && typeof payload.data === 'object'
+            ? extractWidgetAccessToken(payload.data as Record<string, unknown>)
+            : null;
+
 const Login = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -105,9 +118,7 @@ const Login = () => {
         identifier: `91${phone}`,
         exposeMethods: false,
         success: () => {
-          toast.success('WhatsApp number verified successfully.');
-          setStep('success');
-          setSending(false);
+          toast.success('OTP submitted. Confirming verification...');
         },
         failure: (error: unknown) => {
           console.error('MSG91 verification failed:', error);
@@ -123,6 +134,37 @@ const Login = () => {
       if (MSG91_BUTTON_1) {
         configuration.button_1 = MSG91_BUTTON_1;
       }
+
+      configuration.success = async (data: unknown) => {
+        try {
+          const payload = typeof data === 'object' && data ? (data as Record<string, unknown>) : {}
+          const accessToken = extractWidgetAccessToken(payload)
+
+          if (!accessToken) {
+            throw new Error('MSG91 widget did not return an access token.')
+          }
+
+          const { data: verificationData, error } = await supabase.functions.invoke('verify-msg91-widget', {
+            body: {
+              'access-token': accessToken,
+              widgetResponse: payload,
+            },
+          })
+
+          if (error || verificationData?.error || !verificationData?.verified) {
+            throw new Error(verificationData?.error || 'Unable to verify the OTP response.')
+          }
+
+          toast.success('WhatsApp number verified successfully.');
+          setStep('success');
+        } catch (error) {
+          console.error('MSG91 access-token verification failed:', error)
+          const message = error instanceof Error ? error.message : 'Unable to verify OTP.'
+          toast.error(message)
+        } finally {
+          setSending(false)
+        }
+      };
 
       window.initSendOTP?.(configuration);
     } catch {
