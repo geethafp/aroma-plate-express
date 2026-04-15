@@ -69,6 +69,9 @@ const extractWidgetAccessToken = (payload: Record<string, unknown>) =>
             ? extractWidgetAccessToken(payload.data as Record<string, unknown>)
             : null;
 
+const isPlaceholderValue = (value: string | undefined) =>
+  !!value && /^<?(optional_|body_|button_|enter )/i.test(value);
+
 const Login = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -127,11 +130,11 @@ const Login = () => {
         },
       };
 
-      if (MSG91_BODY_1) {
+      if (MSG91_BODY_1 && !isPlaceholderValue(MSG91_BODY_1)) {
         configuration.body_1 = MSG91_BODY_1;
       }
 
-      if (MSG91_BUTTON_1) {
+      if (MSG91_BUTTON_1 && !isPlaceholderValue(MSG91_BUTTON_1)) {
         configuration.button_1 = MSG91_BUTTON_1;
       }
 
