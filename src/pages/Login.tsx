@@ -214,11 +214,6 @@ const Login = () => {
           transition={transition}
           className="w-full max-w-sm"
         >
-          {step === 'otp' && (
-            <button onClick={() => { setStep('phone'); setOtp(['', '', '', '']); }} className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft size={16} /> Back
-            </button>
-          )}
           <h2 className="font-serif-display text-3xl tracking-tight text-foreground mb-2">
             Login
           </h2>
