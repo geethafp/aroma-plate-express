@@ -79,6 +79,40 @@ const formatDeliveryDate = (value: string) =>
     dateStyle: 'medium',
   });
 
+const extractFunctionError = (error: unknown, fallback: string) => {
+  if (error instanceof Error) {
+    const context = (error as Error & { context?: unknown }).context;
+
+    if (context && typeof (context as { json?: unknown }).json === 'function') {
+      return (context as { json: () => Promise<unknown> }).json().then((payload) => {
+        if (payload && typeof payload === 'object' && 'error' in payload && typeof (payload as { error?: unknown }).error === 'string') {
+          return (payload as { error: string }).error;
+        }
+
+        if (payload && typeof payload === 'object' && 'message' in payload && typeof (payload as { message?: unknown }).message === 'string') {
+          return (payload as { message: string }).message;
+        }
+
+        return error.message || fallback;
+      }).catch(() => error.message || fallback);
+    }
+
+    if (typeof context === 'string') {
+      try {
+        const parsed = JSON.parse(context) as { error?: string; message?: string };
+        if (parsed?.error) return Promise.resolve(parsed.error);
+        if (parsed?.message) return Promise.resolve(parsed.message);
+      } catch {
+        if (context.trim()) return Promise.resolve(context);
+      }
+    }
+
+    return Promise.resolve(error.message || fallback);
+  }
+
+  return Promise.resolve(fallback);
+};
+
 const Orders = () => {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [page, setPage] = useState(1);
@@ -127,7 +161,8 @@ const Orders = () => {
       if (cancelled) return;
 
       if (queryError) {
-        setError(queryError.message || 'Failed to fetch orders');
+        const message = await extractFunctionError(queryError, 'Failed to fetch orders');
+        setError(message);
         setOrders([]);
         setTotal(0);
         setTotalPages(1);
