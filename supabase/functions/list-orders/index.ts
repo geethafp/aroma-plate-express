@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import * as jose from 'jsr:@panva/jose@6'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,15 +23,12 @@ const parsePositiveInt = (value: unknown, fallback: number) => {
   return Number.isInteger(numeric) && numeric > 0 ? numeric : fallback
 }
 
-const readEmailFromJwt = (token: string) => {
+const readEmailFromJwt = async (token: string, supabaseUrl: string) => {
   try {
-    const [, payload] = token.split('.')
-    if (!payload) return null
-
-    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const decodedPayload = atob(normalizedPayload.padEnd(normalizedPayload.length + (4 - (normalizedPayload.length % 4 || 4)) % 4, '='))
-    const parsed = JSON.parse(decodedPayload) as { email?: string }
-    return parsed.email?.toLowerCase() ?? null
+    const issuer = `${supabaseUrl}/auth/v1`
+    const jwks = jose.createRemoteJWKSet(new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`))
+    const { payload } = await jose.jwtVerify(token, jwks, { issuer })
+    return typeof payload.email === 'string' ? payload.email.toLowerCase() : null
   } catch {
     return null
   }
@@ -72,7 +70,7 @@ Deno.serve(async (req) => {
     const paymentStatus = payload.paymentStatus?.trim() ?? 'all'
     const paymentMethod = payload.paymentMethod?.trim() ?? 'all'
     const search = payload.search?.trim() ?? ''
-    const email = readEmailFromJwt(bearerToken)
+    const email = await readEmailFromJwt(bearerToken, supabaseUrl)
 
     const serviceClient = createClient(supabaseUrl, serviceRoleKey)
 

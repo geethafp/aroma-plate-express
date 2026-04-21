@@ -4,7 +4,7 @@ project_id = "tgfhefcxalsteywdieia"
 verify_jwt = false
 
 [functions.list-orders]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-order-whatsapp]
 verify_jwt = false
