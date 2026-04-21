@@ -22,6 +22,20 @@ const parsePositiveInt = (value: unknown, fallback: number) => {
   return Number.isInteger(numeric) && numeric > 0 ? numeric : fallback
 }
 
+const readEmailFromJwt = (token: string) => {
+  try {
+    const [, payload] = token.split('.')
+    if (!payload) return null
+
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const decodedPayload = atob(normalizedPayload.padEnd(normalizedPayload.length + (4 - (normalizedPayload.length % 4 || 4)) % 4, '='))
+    const parsed = JSON.parse(decodedPayload) as { email?: string }
+    return parsed.email?.toLowerCase() ?? null
+  } catch {
+    return null
+  }
+}
+
 const allowedAdminEmails = new Set([
   'gfp.vja@gmail.com',
   'vamseekonkinmalla@gmail.com',
@@ -58,18 +72,18 @@ Deno.serve(async (req) => {
     const paymentStatus = payload.paymentStatus?.trim() ?? 'all'
     const paymentMethod = payload.paymentMethod?.trim() ?? 'all'
     const search = payload.search?.trim() ?? ''
+    const email = readEmailFromJwt(bearerToken)
 
     const serviceClient = createClient(supabaseUrl, serviceRoleKey)
-    const { data: authUserData, error: authUserError } = await serviceClient.auth.getUser(bearerToken)
 
-    if (authUserError || !authUserData.user?.email) {
+    if (!email) {
       return new Response(JSON.stringify({ error: 'Invalid session' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    if (!allowedAdminEmails.has(authUserData.user.email.toLowerCase())) {
+    if (!allowedAdminEmails.has(email)) {
       return new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
