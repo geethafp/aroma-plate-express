@@ -8,6 +8,26 @@ import masalaDosa from '@/assets/masala-dosa.jpg';
 import meduVada from '@/assets/medu-vada.jpg';
 import rasmalai from '@/assets/rasmalai.jpg';
 import shahiPaneer from '@/assets/shahi-paneer.jpg';
+import purnamBoori from '@/assets/purnam-boori.jpg';
+import vegCutletCornSamosa from '@/assets/veg-cutlet-corn-samosa.jpg';
+import phulka from '@/assets/phulka.jpg';
+import paneerCurry from '@/assets/paneer-curry.jpg';
+import panasaKaayaBiryani from '@/assets/panasa-kaaya-biryani.jpg';
+import sherwa from '@/assets/sherwa.jpg';
+import plainRice from '@/assets/plain-rice.jpg';
+import guttiVankaaya from '@/assets/gutti-vankaaya.jpg';
+import munakkayaCurry from '@/assets/munakkaya-curry.jpg';
+import gobiCashewFry from '@/assets/gobi-cashew-fry.jpg';
+import ulavachaaru from '@/assets/ulavachaaru.jpg';
+import mangoDal from '@/assets/mango-dal.jpg';
+import sambar from '@/assets/sambar.jpg';
+import rasam from '@/assets/rasam.jpg';
+import curd from '@/assets/curd.jpg';
+import gunPowder from '@/assets/gun-powder.jpg';
+import ghee from '@/assets/ghee.jpg';
+import sweetPan from '@/assets/sweet-pan.jpg';
+import fruitSalad from '@/assets/fruit-salad.jpg';
+import waterBottle from '@/assets/water-bottle.jpg';
 
 export const menuImageMap = {
   'biryani.jpg': biryani,
@@ -18,6 +38,26 @@ export const menuImageMap = {
   'medu-vada.jpg': meduVada,
   'rasmalai.jpg': rasmalai,
   'shahi-paneer.jpg': shahiPaneer,
+  'purnam-boori.jpg': purnamBoori,
+  'veg-cutlet-corn-samosa.jpg': vegCutletCornSamosa,
+  'phulka.jpg': phulka,
+  'paneer-curry.jpg': paneerCurry,
+  'panasa-kaaya-biryani.jpg': panasaKaayaBiryani,
+  'sherwa.jpg': sherwa,
+  'plain-rice.jpg': plainRice,
+  'gutti-vankaaya.jpg': guttiVankaaya,
+  'munakkaya-curry.jpg': munakkayaCurry,
+  'gobi-cashew-fry.jpg': gobiCashewFry,
+  'ulavachaaru.jpg': ulavachaaru,
+  'mango-dal.jpg': mangoDal,
+  'sambar.jpg': sambar,
+  'rasam.jpg': rasam,
+  'curd.jpg': curd,
+  'gun-powder.jpg': gunPowder,
+  'ghee.jpg': ghee,
+  'sweet-pan.jpg': sweetPan,
+  'fruit-salad.jpg': fruitSalad,
+  'water-bottle.jpg': waterBottle,
 } as const;
 
 export const fallbackMenuItems: MenuItem[] = [
